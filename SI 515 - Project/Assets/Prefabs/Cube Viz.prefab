@@ -25,7 +25,7 @@ GameObject:
   - component: {fileID: 95288567097773964}
   - component: {fileID: 114365840823191110}
   m_Layer: 0
-  m_Name: Cube Blue
+  m_Name: Cube Viz
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

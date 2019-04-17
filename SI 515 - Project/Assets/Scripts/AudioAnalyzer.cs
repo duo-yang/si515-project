@@ -4,6 +4,9 @@ using UnityEngine;
 
 [RequireComponent (typeof (AudioSource))]
 public class AudioAnalyzer : MonoBehaviour {
+  public AudioClip[] audioClips;
+  private int _curClip = 0;
+
   public static int _bandCounts = 8;
   public static int _sampleCounts = 512;
   private bool _playing = true;
@@ -184,6 +187,20 @@ public class AudioAnalyzer : MonoBehaviour {
     if (_playing) { _audioSource.Pause(); }
     else { _audioSource.UnPause(); }
     _playing = !_playing;
+  }
+
+  public void nextClip() {
+    _audioSource.Stop();
+    if (++_curClip >= audioClips.Length) _curClip = 0;
+    _audioSource.clip = audioClips[_curClip];
+    _audioSource.Play();
+  }
+
+  public void lastClip() {
+    _audioSource.Stop();
+    if (--_curClip < 0) _curClip = audioClips.Length - 1;
+    _audioSource.clip = audioClips[_curClip];
+    _audioSource.Play();
   }
 
 }
