@@ -6,6 +6,14 @@ using UnityEngine;
 public class AudioAnalyzer : MonoBehaviour {
   public static int _bandCounts = 8;
   public static int _sampleCounts = 512;
+  private bool _playing = true;
+
+  public TextMesh indicator;
+  public TextMesh effect;
+
+  public float[,] xMap = new float[2, 2];
+  public float[,] yMap = new float[2, 2];
+  public float[,] zMap = new float[2, 2];
 
   public bool useBuffer = true;
   public float bufferDecreaseSpeed = 0.005f;
@@ -20,6 +28,8 @@ public class AudioAnalyzer : MonoBehaviour {
   public enum Channel { Left = 0, Right = 1, Stereo = 2 };
 
   private AudioSource _audioSource;
+  public GameObject tracker;
+  private Transform _tracker;
 
   private float[] samplesLeft, samplesRight;
 
@@ -32,7 +42,27 @@ public class AudioAnalyzer : MonoBehaviour {
 
   // Use this for initialization
   void Start () {
+
+    // panStereo
+    xMap[0, 0] = -0.4F;
+    xMap[0, 1] = 0.4F;
+    xMap[1, 0] = -1F;
+    xMap[1, 1] = 1F;
+
+    // pitch
+    yMap[0, 0] = -0.8F;
+    yMap[0, 1] = 0.4F;
+    yMap[1, 0] = -1F;
+    yMap[1, 1] = 2F;
+
+    // volume
+    zMap[0, 0] = -0.8F;
+    zMap[0, 1] = 1.2F;
+    zMap[1, 0] = 0F;
+    zMap[1, 1] = 1F;
+
     _audioSource = GetComponent<AudioSource>();
+    if (tracker != null) _tracker = tracker.transform;
 
     audioBand = new float[_bandCounts, 3];
     audioBandBuffer = new float[_bandCounts, 3];
@@ -52,9 +82,31 @@ public class AudioAnalyzer : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+    updateAudio();
     getSpectrumfromAudioSource();
     getFreqBands();
 	}
+
+  private float mapping(float value, float[,] map) {
+    if (value > map[0, 1]) value = map[0, 1];
+    if (value < map[0, 0]) value = map[0, 0];
+    return (value - map[0, 0]) * (map[1, 1] - map[1, 0]) / (map[0, 1] - map[0, 0]) + map[1, 0];
+  }
+
+  private void updateAudio() {
+    if (_tracker != null) {
+      float xEffect = mapping(_tracker.position.x, xMap);
+      float yEffect = mapping(_tracker.position.y, yMap);
+      float zEffect = mapping(_tracker.position.z, zMap);
+
+      _audioSource.pitch = yEffect;
+      _audioSource.volume = zEffect;
+      _audioSource.panStereo = xEffect;
+
+      indicator.text = _tracker.position.x.ToString("F") + ", " + _tracker.position.y.ToString("F") + ", " + _tracker.position.z.ToString("F");
+      effect.text = "Stereo: " + xEffect.ToString("F") + ", pitch:" + yEffect.ToString("F") + ", Volume:" + zEffect.ToString("F");
+    }
+  }
 
   private void getSpectrumfromAudioSource (AudioSource source) {
     if (source != null) {
@@ -126,6 +178,12 @@ public class AudioAnalyzer : MonoBehaviour {
         _freqBandHighest[i, k] = profile;
       }
     }
+  }
+
+  public void togglePlay() {
+    if (_playing) { _audioSource.Pause(); }
+    else { _audioSource.UnPause(); }
+    _playing = !_playing;
   }
 
 }

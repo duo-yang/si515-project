@@ -26,5 +26,6 @@ public class VizCube : MonoBehaviour {
 
   public void setLight(float light) {
     _pointLight.intensity = light;
+    _pointLight.color = Color.HSVToRGB(light, 0.7F, 1.0F);
   }
 }

@@ -158,7 +158,7 @@ namespace Leap.Unity {
       }
 
       if (_allowScale) {
-        _anchor.localScale = Vector3.one * Vector3.Distance(_pinchDetectorA.Position, _pinchDetectorB.Position);
+        // _anchor.localScale = Vector3.one * Vector3.Distance(_pinchDetectorA.Position, _pinchDetectorB.Position);
       }
     }
 
